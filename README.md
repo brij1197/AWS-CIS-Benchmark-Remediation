@@ -1,16 +1,99 @@
-AWS Security Hub is a service that gives aggregated visibility into security and compliance status across multiple AWS accounts. Based on those findings, we start to remediate the issues to make the account compliant with the CIS policies. These findings are then sent as events to the lambda function using an event bridge rule which is configured to take custom actions and that will be taken as the event input for the lambda function.
-By creating custom actions mapped to specific finding types and by developing a corresponding Lambda function for that custom action, we can achieve targeted, automated remediation for these findings. And it is repeated for all the findings from the Security hub to resolve all the failed compliance issues.
-For example, to resolve the Security Group compliance that allows traffic from all sources to SSH into a service that has this service group attached which is in defiance of the compliance of the AWS CIS policy. After setting triggers, run the lambda function and it gives the response that informs the user that the inbound rule for the security group has been removed. The ingress rule has now been revoked, which then makes the security group compliant. And it will be noticed after 12 hours in Security Hub.
-Automation of the lambda function can be done using EventBridge rules. This can be added as a trigger to the lambda function. To apply it for more than a single user a role containing permissions to assume the access needs to be deployed to the user accounts in the organization and it can be done using CloudFormation Stacksets.
 
-Table of Contents:
-1. Remediation of IAM Password Policies
-2. Remediation of IAM Security Group Policies
+# AWS Security Hub Automated Remediation
 
-1. Remediation of IAM Password Policies
-# In cis_password__policy_lambda:
-Function to remediate policies related to user account's password. For eg: If they are changed in every 90 days and if the access is not 90 days old.
+This repository provides a framework for automating remediation of security and compliance issues detected by AWS Security Hub. By leveraging EventBridge, Lambda functions, and CloudFormation, it enables targeted, automated fixes for compliance violations, aligning with AWS CIS benchmarks.
 
-2. Remediation of IAM Security Group Policies
-# In cis_security_group_lambda:
-This funtion is used for remediation any violation caused by a security group in terms of inbound and outbound rules.
+## Overview
+
+AWS Security Hub aggregates visibility into security and compliance statuses across multiple AWS accounts. This solution automates the remediation of non-compliant findings based on custom actions, enabling seamless enforcement of security best practices.
+
+### Key Features:
+- Automated remediation of IAM password policy violations and security group compliance issues.
+- Event-driven architecture using EventBridge and Lambda functions.
+- Scalable deployment across multiple AWS accounts using CloudFormation StackSets.
+- Example use cases for common AWS compliance challenges.
+
+---
+
+## How It Works
+
+1. **Security Findings:**  
+   AWS Security Hub identifies compliance issues, such as insecure IAM password policies or misconfigured security groups.
+
+2. **EventBridge Rules:**  
+   Findings are sent to EventBridge, which triggers Lambda functions based on custom actions mapped to specific finding types.
+
+3. **Lambda Functions:**  
+   Targeted Lambda functions process the findings and apply necessary remediations automatically.
+
+4. **Compliance Verification:**  
+   Security Hub reflects compliance updates within 12 hours of remediation.
+
+---
+
+## Examples of Automated Remediation
+
+### 1. Security Group Compliance  
+**Scenario:**  
+A security group allows unrestricted SSH access from all sources, violating AWS CIS policies.
+
+**Remediation:**  
+- A Lambda function removes the non-compliant ingress rule from the security group.
+- Compliance is restored, and Security Hub reflects the update within 12 hours.
+
+**Automation:**  
+- EventBridge rule triggers the Lambda function whenever a security group violation is detected.
+
+### 2. IAM Password Policy Compliance  
+**Scenario:**  
+User accounts have passwords that are not rotated every 90 days.
+
+**Remediation:**  
+- A Lambda function enforces password policies, ensuring users comply with password age requirements.
+
+**Automation:**  
+- EventBridge rule triggers the Lambda function when a password policy violation is identified.
+
+---
+
+## Deployment Instructions
+
+1. **EventBridge Setup:**  
+   - Configure EventBridge rules for findings from AWS Security Hub.
+
+2. **Lambda Functions:**  
+   - Deploy Lambda functions for specific remediation tasks (e.g., password policies, security groups).
+
+3. **CloudFormation StackSets:**  
+   - Use CloudFormation StackSets to deploy roles with necessary permissions across multiple AWS accounts.
+
+---
+
+## Table of Contents
+1. [IAM Password Policy Remediation](#1-iam-password-policy-remediation)
+2. [Security Group Compliance Remediation](#2-security-group-compliance-remediation)
+
+---
+
+### 1. IAM Password Policy Remediation
+**File:** `cis_password_policy_lambda`  
+**Description:**  
+- Lambda function to enforce IAM password policies.
+- Ensures compliance with rules like password expiration (e.g., every 90 days).
+
+---
+
+### 2. Security Group Compliance Remediation
+**File:** `cis_security_group_lambda`  
+**Description:**  
+- Lambda function to remediate security group violations.
+- Automatically updates inbound/outbound rules to align with AWS CIS policies.
+
+---
+
+## Future Enhancements
+- Add remediation for additional AWS CIS controls.
+- Provide a dashboard for tracking remediation status.
+- Integrate with third-party tools for expanded visibility.
+
+---
